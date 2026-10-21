@@ -6,5 +6,6 @@ local.properties
 .idea/
 app/.cxx/
 website/
+releases-repo/
 .release-signing/
 release-dist/
