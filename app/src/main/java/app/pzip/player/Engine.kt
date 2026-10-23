@@ -94,6 +94,7 @@ object Engine {
     var backgroundAllowedForVideo by mutableStateOf(false)
 
     private var shuffleOrder: List<Int> = emptyList()
+    private var softwareRetry = false
 
     fun init(context: Context) {
         app = context.applicationContext
@@ -111,8 +112,10 @@ object Engine {
             "--freetype-color=16777215",
             "--freetype-background-opacity=0",
             "--freetype-outline-thickness=4",
+            // Leave room for the seek bar and bottom actions when controls are visible.
+            "--sub-margin=200",
             "--network-caching=1500",
-            "--file-caching=300",
+            "--file-caching=150",
             "--stats",
             "-v",
         )
@@ -164,7 +167,17 @@ object Engine {
             }
             MediaPlayer.Event.EncounteredError -> {
                 playing = false
-                error = "Can't play this file"
+                if (!softwareRetry && decoder == Decoder.AUTO && current?.isAudio == false) {
+                    softwareRetry = true
+                    val failedIndex = index
+                    val resumeAt = time
+                    main.post {
+                        if (index == failedIndex && playlist.isNotEmpty()) {
+                            playAt(failedIndex, retry = true)
+                            if (resumeAt > 0) main.postDelayed({ if (index == failedIndex) seekTo(resumeAt) }, 500)
+                        }
+                    }
+                } else error = "Can't play this file with hardware or software decoding"
             }
         }
     }
@@ -211,8 +224,9 @@ object Engine {
         playAt(start)
     }
 
-    fun playAt(i: Int) {
+    fun playAt(i: Int, retry: Boolean = false) {
         val item = playlist.getOrNull(i) ?: return
+        if (!retry) softwareRetry = false
         savePosition()
         val mp = ensure()
         index = i
@@ -225,7 +239,7 @@ object Engine {
         hasVideo = !item.isAudio
         videoSize = 0 to 0
         val media = Media(libVlc!!, item.uri)
-        when (decoder) {
+        when (if (softwareRetry) Decoder.SW else decoder) {
             Decoder.AUTO -> media.setHWDecoderEnabled(true, false)
             Decoder.HW -> media.setHWDecoderEnabled(true, true)
             Decoder.SW -> media.setHWDecoderEnabled(false, false)
@@ -241,7 +255,8 @@ object Engine {
         media.release()
         mp.rate = rate
         // VLC needs the video surface before it starts, or the picture never appears.
-        if (!item.isAudio && !surfaceReady && !AudioService.inBackground) pendingStart = true else mp.play()
+        pendingStart = !item.isAudio && !surfaceReady && !AudioService.inBackground
+        if (!pendingStart) mp.play()
         if (equalizerPreset >= 0) mp.setEqualizer(MediaPlayer.Equalizer.createFromPreset(equalizerPreset))
         if (volumeBoost != 100) mp.volume = volumeBoost
         val resume = if (Prefs.resumePlayback) Prefs.positionOf(item.key) else 0L
@@ -456,6 +471,7 @@ object Engine {
     }
 
     fun stop() {
+        pendingStart = false
         savePosition()
         player?.stop()
         playing = false
@@ -464,6 +480,7 @@ object Engine {
 
     /** Fully releases VLC (when the user closes playback). */
     fun release() {
+        pendingStart = false
         savePosition()
         runCatching {
             player?.detachViews()

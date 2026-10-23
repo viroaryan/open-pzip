@@ -1,4 +1,4 @@
-param([string]$Tag = 'v1.0.0')
+param([string]$Tag = 'v1.0.1')
 $ErrorActionPreference = 'Stop'
 $project = Split-Path -Parent $PSScriptRoot
 $artifacts = Join-Path $project 'release-dist'
@@ -25,7 +25,7 @@ try {
             draft = $true
             prerelease = $false
             generate_release_notes = $false
-            body = "pzip 1.0.0 — the first Android release.`n`nBrowse and organize files, create and extract archives, play video and audio, review storage cleanup suggestions, and use optional privacy tools.`n`nChoose the universal APK for most phones, or an architecture-specific APK for a smaller download. Verify the SHA-256 hash with SHA256SUMS.txt. Android 8.0 or newer is required.`n`nSource and build instructions: https://github.com/viroaryan/open-pzip"
+            body = "pzip 1.0.1 — video playback refinements.`n`n- Reduced local-file buffering for faster startup.`n- Automatic one-time software decoding retry after a playback error.`n- Subtitles sit clear of the seek bar and bottom controls.`n- Video details show exact pixel dimensions.`n`nTested on a connected Android phone with a 2.1 GB MKV: play/pause, seek, subtitle selection and on-screen controls. Format and performance still depend on device hardware and media.`n`nChoose the universal APK if unsure of your device architecture. Compare the APK with SHA256SUMS.txt. Android 8.0 or newer is required.`n`nSource and build instructions: https://github.com/viroaryan/open-pzip"
         } | ConvertTo-Json -Depth 4
         $release = Invoke-RestMethod -Method Post -Uri "$api/releases" -Headers $headers -ContentType 'application/json' -Body $body
         Write-Output "Created draft release $Tag"

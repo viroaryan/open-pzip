@@ -354,7 +354,7 @@ private fun Controls(
                 val sub = listOfNotNull(
                     Engine.artist.takeIf { it.isNotEmpty() },
                     if (Engine.playlist.size > 1) "${Engine.index + 1} of ${Engine.playlist.size}" else null,
-                    Engine.videoSize.takeIf { it.first > 0 }?.let { "${it.second}p" },
+                    Engine.videoSize.takeIf { it.first > 0 }?.let { "${it.first}×${it.second}" },
                     if (Engine.recording) "● REC" else null,
                 ).joinToString(" · ")
                 if (sub.isNotEmpty()) Text(sub, color = Color(0xB3FFFFFF), style = MaterialTheme.typography.bodySmall, maxLines = 1)

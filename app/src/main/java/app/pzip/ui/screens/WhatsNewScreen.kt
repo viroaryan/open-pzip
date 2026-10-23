@@ -38,18 +38,21 @@ fun WhatsNewScreen() {
                 Column {
                     Text("VERSION ${BuildConfig.VERSION_NAME}", color = P.c.accent, style = MaterialTheme.typography.labelLarge)
                     Gap(10)
-                    Text("Everything in one place.", color = P.c.text, style = MaterialTheme.typography.headlineMedium)
+                    Text("A smoother video player.", color = P.c.text, style = MaterialTheme.typography.headlineMedium)
                     Gap(8)
-                    Text("The first pzip release brings your everyday files, media and cleanup tools together.", color = P.c.textMuted, style = MaterialTheme.typography.bodyMedium)
+                    Text("Playback starts faster for local files, can retry with software decoding after a hardware error, and keeps subtitles clear of the controls.", color = P.c.textMuted, style = MaterialTheme.typography.bodyMedium)
                 }
             }
         }
-        item { SectionHeader("Highlights") }
+        item { SectionHeader("Version 1.0.1") }
         item {
-            SettingRow("File manager", "Browse, search, sort and organize your files", Icons.Rounded.Folder)
-            SettingRow("Archive tools", "Create and extract ZIP, 7z and other formats", Icons.Rounded.Code)
-            SettingRow("Media player", "Video, audio, subtitles and picture-in-picture", Icons.Rounded.Movie)
-            SettingRow("Storage cleanup", "Review duplicates, large files and empty folders", Icons.Rounded.Storage)
+            SettingRow("Faster local playback", "Reduced local file buffering for a quicker start", Icons.Rounded.Movie)
+            SettingRow("Decoder recovery", "Retry once in software when automatic decoding fails", Icons.Rounded.Code)
+            SettingRow("Clearer controls", "Subtitles sit above the seek bar; video shows exact dimensions", Icons.Rounded.Storage)
+        }
+        item { SectionHeader("Version 1.0.0") }
+        item {
+            SettingRow("First public release", "Files, archives, media, cleanup and privacy tools", Icons.Rounded.Folder)
         }
         item { SectionHeader("Latest release") }
         item {
